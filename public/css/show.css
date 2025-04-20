@@ -1,0 +1,229 @@
+/* Layout and Container */
+.container-center {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Heading */
+.listing-heading h3 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin: 1.5rem 0;
+    font-weight: 600;
+}
+
+/* Listing Card */
+.show-card {
+    padding: 1.5rem;
+    border-radius: 16px;
+    background-color: #ffffff;
+    margin-bottom: 2rem;
+    width: 100%;  /* Full width of container */
+    box-sizing: border-box;
+}
+
+.show-img {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+/* Card Text */
+.card-text {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #444;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.btns {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin: 2rem auto;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.btns .edit-btn,
+.btns form button {
+    padding: 12px 24px;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.edit-btn {
+    background-color: #fe424d;
+    color: #fff;
+}
+
+.edit-btn:hover {
+    background-color: #c93740;
+}
+
+form button {
+    background-color: #444;
+    color: #fff;
+}
+
+form button:hover {
+    background-color: #fe424d;
+}
+
+/* Review Box */
+#reviewBox {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    width: 100%;  /* Full width of container */
+    box-sizing: border-box;
+}
+
+#reviewBox h4 {
+    margin-bottom: 1rem;
+}
+
+/* Review Card */
+.review-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+#reviewCard {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    width: calc(33.333% - 20px);
+    box-sizing: border-box;
+    transition: all 0.3s ease-in-out; /* Smooth animation */
+}
+/* Hover effect for review cards */
+#reviewCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+}
+
+
+#reviewCard .card-body {
+    padding: 1rem;
+}
+
+.delete-btn,
+#reviewCard button {
+    background-color: #000;  /* Black color */
+    color: #fff;  /* White text */
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.delete-btn:hover,
+#reviewCard button:hover {
+    background-color: #333;  /* Darker shade of black when hovered */
+}
+
+/* Map */
+#map {
+    width: 100%;
+    height: 400px;
+    min-height: 400px;
+    border-radius: 12px;
+    margin: 1rem auto;
+    box-sizing: border-box;
+}
+
+
+
+/* Media Queries: Mobile Optimization */
+@media (max-width: 768px) {
+
+    .listing-heading h3,
+    #map+h3 {
+        font-size: 1.6rem;
+        margin: 1rem 0;
+    }
+
+    #map {
+        width: 90%;
+        height: 300px;
+        min-height: 300px;
+        margin: 1rem auto;
+    }
+
+    .show-card,
+    .col-6.offset-3,
+    #reviewBox,
+    #reviewCard {
+        width: 94% !important;
+        margin: 1.5rem auto;
+        padding: 2rem;
+    }
+
+    .show-img {
+        max-height: 250px;
+        border-radius: 12px;
+    }
+
+    .card-text {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .btns {
+        flex-direction: row;  /* Stack buttons vertically */
+        gap: 15px;  /* Increase gap between buttons */
+    }
+
+    .edit-btn,
+    .delete-btn {
+       width: 150px; /* Make buttons take up full width */
+        padding: 12px 20px;
+        font-size: 1rem;
+        text-decoration: none;
+    }
+   
+
+    textarea.form-control {
+        font-size: 1rem;
+        padding: 10px;
+    }
+
+    .starability-slot label {
+        font-size: 0.9rem;
+    }
+
+        /* Ensure map remains centered */
+        #map {
+            width: 100% !important; /* Ensure full width */
+            height: 250px;  /* Reduce height for smaller screens */
+        }
+    
+        /* Optional: Adjust the heading style for smaller devices */
+        #map + h3 {
+            font-size: 1rem; /* Reduce font size on smaller screens */
+        }
+    
+        /* Optional: Adjust container offset for mobile */
+        .offset-3 {
+            width: 80%; /* Allow for some padding on smaller screens */
+            margin: 0 auto; /* Center the container */
+        }
+    
+}
