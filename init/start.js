@@ -10,10 +10,7 @@ const MongoStore = require("connect-mongo");
 const start = async () => {
   try {
     await connectDB();
-    console.log(process.env.CLOUD_API_KEY);
-    
-    console.log(process.env.ATLASDB_URL);
-    
+   
     if (!process.env.ATLASDB_URL) {
       throw new Error("ATLASDB_URL is missing");
     }
