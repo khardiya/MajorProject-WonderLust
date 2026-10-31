@@ -16,7 +16,32 @@ const upload = multer({ storage })
 // index and create route
 router.route("/")
     .get(wrapAsync(listingController.index))
-    .post(isLoggedIn,upload.single('listing[image]'), validateListing,  wrapAsync(listingController.createListing));
+    .post(
+        isLoggedIn,
+
+        (req, res, next) => {
+            console.log("1. AUTHENTICATION PASSED");
+            next();
+        },
+
+        upload.single("listing[image]"),
+
+        (req, res, next) => {
+            console.log("2. CLOUDINARY UPLOAD PASSED");
+            console.log("BODY:", req.body);
+            console.log("FILE:", req.file);
+            next();
+        },
+
+        validateListing,
+
+        (req, res, next) => {
+            console.log("3. JOI VALIDATION PASSED");
+            next();
+        },
+
+        wrapAsync(listingController.createListing)
+    );
    
     
 

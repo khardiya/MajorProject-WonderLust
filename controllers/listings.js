@@ -1,5 +1,4 @@
 const Listing = require("../models/listing");
-const fetch = require("node-fetch"); // Ensure 'node-fetch' is installed
 // const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
 // const mapToken = process.env.MAP_TOKEN;
 // const geocodingClient = mbxGeocoding({ accessToken: mapToken });
@@ -9,7 +8,7 @@ const fetch = require("node-fetch"); // Ensure 'node-fetch' is installed
 module.exports.index = async (req, res) => {
     const allListings = await Listing.find({});
     res.render("listings/index.ejs", { allListings });
-    
+
 }
 
 
@@ -33,38 +32,61 @@ module.exports.showListing = async (req, res) => {
 module.exports.createListing = async (req, res, next) => {
     try {
         const { location, country } = req.body.listing;
+
+        // Default coordinates: Delhi
+        let geometry = {
+            type: "Point",
+            coordinates: [77.216721, 28.6448]
+        };
+
+        // Try Radar geocoding, but don't block listing creation
+        // Radar Geocoding
         const query = `${location}, ${country}`;
-        const radarUrl = `https://api.radar.io/v1/geocode/forward?query=${encodeURIComponent(query)}`;
+        const params = new URLSearchParams({ query });
 
-        let response = await fetch(radarUrl, {
-            method: "GET",
-            headers: {
-                "Authorization": "prj_test_pk_a2b6a33fc0a53c3a067ce311b0a6ad2ad50ef2cf" // Replace with your actual API key
+        try {
+            const response = await fetch(
+                `https://api.radar.io/v1/geocode/forward?${params}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: process.env.MAP_TOKEN,
+                        Accept: "application/json"
+                    },
+                    signal: AbortSignal.timeout(10000)
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`Radar API error: ${response.status}`);
             }
-        });
 
-        let data = await response.json();
-        // console.log("🛰️ Radar API Response:", JSON.stringify(data, null, 2));
+            const data = await response.json();
 
-        let geometry;
-        if (data.addresses && data.addresses.length > 0) {
-            const { latitude, longitude } = data.addresses[0];
+            if (data.addresses?.length > 0) {
+                const { latitude, longitude } = data.addresses[0];
 
-            // Validate coordinates
-            if (typeof latitude === "number" && typeof longitude === "number") {
-                geometry = { type: "Point", coordinates: [longitude, latitude] };
-            } else {
-                // console.warn("⚠️ Invalid coordinates received from Radar API, using default.");
-                geometry = { type: "Point", coordinates: [77.216721, 28.6448] }; // Default to Delhi
+                if (
+                    Number.isFinite(latitude) &&
+                    Number.isFinite(longitude)
+                ) {
+                    geometry = {
+                        type: "Point",
+                        coordinates: [longitude, latitude]
+                    };
+                }
             }
-        } else {
-            // console.warn("⚠️ Warning: Radar API did not return valid coordinates. Using default.");
-            geometry = { type: "Point", coordinates: [77.216721, 28.6448] }; // Default to Delhi
+
+        } catch (radarError) {
+            console.error("Radar geocoding failed:", radarError.message);
+            console.log("Using default coordinates.");
         }
 
-        let url = req.file?.path || "";
-        let filename = req.file?.filename || "";
+        // Cloudinary image information
+        const url = req.file?.path || "";
+        const filename = req.file?.filename || "";
 
+        // Create listing
         const newListing = new Listing({
             ...req.body.listing,
             geometry,
@@ -72,16 +94,17 @@ module.exports.createListing = async (req, res, next) => {
             owner: req.user._id
         });
 
-        // console.log("📌 New Listing Before Saving:", JSON.stringify(newListing, null, 2));
         await newListing.save();
-        // console.log("✅ Listing saved successfully with geometry:", geometry.coordinates);
+
+        console.log("LISTING SAVED SUCCESSFULLY:", newListing._id);
 
         req.flash("success", "Successfully created a new listing");
-        res.redirect("/listings");
+
+        return res.redirect("/listings");
+
     } catch (error) {
-        console.error("❌ Error creating listing:", error);
-        req.flash("error", "Something went wrong. Please try again.");
-        res.redirect("/listings/new");
+        console.error("LISTING CREATION FAILED:", error);
+        return next(error);
     }
 };
 
@@ -94,8 +117,8 @@ module.exports.renderEditForm = async (req, res) => {
         return res.redirect("/listings");
     }
     let originalImageUrl = listing.image.url;
-    originalImageUrl =originalImageUrl.replace('/upload/', '/upload/w_200,h_100,c_fill,q_10,f_auto/')
-    res.render("listings/edit.ejs", { listing  ,  originalImageUrl});
+    originalImageUrl = originalImageUrl.replace('/upload/', '/upload/w_200,h_100,c_fill,q_10,f_auto/')
+    res.render("listings/edit.ejs", { listing, originalImageUrl });
 }
 
 
@@ -122,8 +145,11 @@ module.exports.updateListing = async (req, res) => {
         };
     }
 
-    await listing.save(); // Save changes to DB
+    console.log("4. ABOUT TO SAVE LISTING:", newListing);
 
+    await newListing.save();
+
+    console.log("5. LISTING SAVED SUCCESSFULLY");
     req.flash("success", "Successfully updated listing");
     res.redirect(`/listings/${listing._id}`);
 };
